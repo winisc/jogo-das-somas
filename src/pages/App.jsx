@@ -432,7 +432,7 @@ function App() {
                 </p>
               </div>
               <div className="bg-[#c4dbb4] rounded-xl p-3 text-center">
-                <p className="text-xs font-semibold text-[#539fa2]">Nível</p>
+                <p className="text-xs font-semibold text-[#539fa2]">Ranking</p>
                 <p className="text-sm font-bold text-[#539fa2]">
                   {calculateLevel()}
                 </p>
