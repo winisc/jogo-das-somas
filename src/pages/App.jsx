@@ -120,7 +120,7 @@ function App() {
   // initialize audio elements once
   useEffect(() => {
     try {
-      bgRef.current = new Audio("/sounds/bg.wav");
+      bgRef.current = new Audio("/sounds/bg.mp3");
       bgRef.current.loop = true;
       bgRef.current.volume = 0.24;
     } catch (e) {}
