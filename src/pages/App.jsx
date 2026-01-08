@@ -490,7 +490,7 @@ function App() {
   }, [score]);
 
   return (
-    <div className="h-screen w-screen flex flex-col justify-between bg-[#539fa2] px-6 py-4">
+    <div className="h-[100dvh] w-screen flex flex-col justify-between bg-[#539fa2] px-6 py-4">
       <div className="flex justify-between items-center">
         {gameStarted ? (
           <div className="flex justify-center items-center gap-2 relative">
