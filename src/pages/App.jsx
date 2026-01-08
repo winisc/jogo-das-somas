@@ -52,7 +52,6 @@ const AnimatedTimer = ({ value }) => {
           <AnimatedDigit
             key={`${digit}-${i}`}
             char={digit}
-            syncKey={value}
             size={3}
             color="#e2b6b6"
           />
@@ -151,6 +150,7 @@ function App() {
   useEffect(() => {
     if (answer === String(sumNow) && !correctFeedback) {
       // Correct answer given -> instant feedback
+      UpTimeCorrectSum();
       playSfx(sfxCorrectRef);
       setCorrectFeedback(true);
       // hide timer briefly
@@ -167,7 +167,6 @@ function App() {
         setAnswer("");
         setSumNow(newValue + newValue);
         setValueNow(newValue);
-        UpTimeCorrectSum();
         // start badge exit
         setBadgeLeaving(true);
         // after exit animation, hide badge and restore timer
@@ -317,30 +316,20 @@ function App() {
     7: "text-7xl",
   };
 
-  const AnimatedDigit = ({ char, syncKey, size = 7, color }) => {
-    const [visible, setVisible] = useState(false);
-
-    useEffect(() => {
-      setVisible(false);
-      const raf = requestAnimationFrame(() => setVisible(true));
-      return () => cancelAnimationFrame(raf);
-    }, [syncKey]);
-
+  const AnimatedDigit = ({ char, size = 7, color }) => {
     return (
       <span
         style={{ color: color || "#d4e2b6" }}
         className={`
         inline-block font-semibold
-        transform transition-all duration-300 ease-out
+        transform transition-all duration-400 ease-out
         ${sizeClasses[size]}
-        ${visible ? "opacity-100 scale-100" : "opacity-0 scale-125"}
       `}
       >
         {char}
       </span>
     );
   };
-
   // Overlay shown briefly after countdown ends. Controls its own enter/exit
   // animations and notifies parent via `onDone` when exit completes.
   const StartOverlay = ({ onDone }) => {
@@ -546,7 +535,7 @@ function App() {
               {String(countdown)
                 .split("")
                 .map((ch, i) => (
-                  <AnimatedDigit key={i} char={ch} syncKey={countdown} />
+                  <AnimatedDigit key={i} char={ch} />
                 ))}
             </div>
           </>
@@ -666,11 +655,11 @@ function App() {
               <span className="text-sm font-semibold text-[#d4e2b6]">
                 Tempo restante:
               </span>
-              {!hideTimer ? (
-                <AnimatedTimer value={timeLeft} />
-              ) : (
-                <div className="h-8 flex items-center justify-center">
-                  {showGainBadge && (
+              <div className="h-10 flex items-center justify-center">
+                {!hideTimer ? (
+                  <AnimatedTimer value={timeLeft} />
+                ) : (
+                  showGainBadge && (
                     <div
                       className={`px-3 py-1 rounded-xl bg-green-300 text-[#053f36] font-bold shadow-md transform transition-all duration-300 ${
                         badgeLeaving ? "badge-exit" : "badge-enter"
@@ -678,9 +667,9 @@ function App() {
                     >
                       +{TIME_GAIN}s
                     </div>
-                  )}
-                </div>
-              )}
+                  )
+                )}
+              </div>
             </div>
           </div>
         )}
