@@ -122,7 +122,7 @@ function App() {
     try {
       bgRef.current = new Audio("/sounds/bg.mp3");
       bgRef.current.loop = true;
-      bgRef.current.volume = 0.24;
+      bgRef.current.volume = 0.14;
     } catch (e) {}
     try {
       sfxCorrectRef.current = new Audio("/sounds/correct.wav");
