@@ -1,0 +1,135 @@
+@import "tailwindcss";
+
+body {
+  font-family: "Poppins", sans-serif;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+}
+
+/* Animações de entrada */
+.modal-opening .modal-overlay {
+  animation: fadeIn 0.2s ease-out;
+}
+
+.modal-opening .modal-box {
+  animation: slideUp 0.3s ease-out;
+}
+
+/* Animações de saída */
+.modal-closing .modal-overlay {
+  animation: fadeOut 0.3s ease-out;
+}
+
+.modal-closing .modal-box {
+  animation: slideDown 0.3s ease-out;
+}
+
+/* Start overlay animations (Começou!) */
+@keyframes overlayIn {
+  from {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes overlayOut {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(1.15);
+  }
+}
+
+.animate-start-in {
+  animation: overlayIn 240ms cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+.animate-start-out {
+  animation: overlayOut 420ms cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+/* Badge enter/exit for time gain */
+@keyframes badgeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes badgeOut {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.98);
+  }
+}
+
+.badge-enter {
+  animation: badgeIn 260ms cubic-bezier(0.2, 0.9, 0.2, 1) forwards;
+}
+
+.badge-exit {
+  animation: badgeOut 220ms cubic-bezier(0.2, 0.9, 0.2, 1) forwards;
+}
+
+/* small tweak for score badge positioning/appearance */
+.score-badge {
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+}

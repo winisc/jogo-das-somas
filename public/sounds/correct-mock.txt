@@ -1,0 +1,3 @@
+Placeholder for correct sound effect. Replace with an actual audio file at public/sounds/correct.mp3
+
+Rename this file to correct.mp3 and replace content with real audio.

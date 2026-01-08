@@ -1,0 +1,3 @@
+Placeholder for game over sound effect. Replace with an actual audio file at public/sounds/gameover.mp3
+
+Rename this file to gameover.mp3 and replace content with real audio.

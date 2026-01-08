@@ -1,0 +1,3 @@
+Placeholder for background music. Replace with an actual audio file at public/sounds/bg.mp3
+
+Rename this file to bg.mp3 and replace content with real audio.

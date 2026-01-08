@@ -1,0 +1,3 @@
+Placeholder for click sound effect. Replace with an actual audio file at public/sounds/click.mp3
+
+Rename this file to click.mp3 and replace content with real audio.
