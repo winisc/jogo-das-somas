@@ -4,61 +4,10 @@ import ConfigModal from "../components/ConfigModal";
 import HelpModal from "../components/HelpModal";
 
 const SCORE_BASE = 1000;
-const SCORE_MULTIPLYER = 28;
+const SCORE_MULTIPLYER = 100;
 const TIME_GAIN = 8;
-const sizeClasses = {
-  3: "text-3xl",
-  4: "text-4xl",
-  5: "text-5xl",
-  6: "text-6xl",
-  7: "text-7xl",
-};
-
-const AnimatedDigit = ({ char, syncKey, size = 7, color }) => {
-  const [visible, setVisible] = useState(false);
-  const lastSync = useRef(syncKey);
-
-  useEffect(() => {
-    // Only trigger animation when syncKey actually changes
-    if (lastSync.current === syncKey) return;
-    lastSync.current = syncKey;
-    setVisible(false);
-    const raf = requestAnimationFrame(() => setVisible(true));
-    return () => cancelAnimationFrame(raf);
-  }, [syncKey]);
-
-  return (
-    <span
-      style={{ color: color || "#d4e2b6" }}
-      className={`
-        inline-block font-semibold
-        transform transition-all duration-300 ease-out
-        ${sizeClasses[size]}
-        ${visible ? "opacity-100 scale-100" : "opacity-0 scale-125"}
-      `}
-    >
-      {char}
-    </span>
-  );
-};
-
-const AnimatedTimer = ({ value }) => {
-  return (
-    <div className="flex gap-1">
-      {String(value)
-        // .padStart(2, "0")
-        .split("")
-        .map((digit, i) => (
-          <AnimatedDigit
-            key={`${digit}-${i}`}
-            char={digit}
-            size={3}
-            color="#e2b6b6"
-          />
-        ))}
-    </div>
-  );
-};
+const TIME_LEFT = 10;
+const SCALA_TIME_SCORE = 100;
 
 function App() {
   const [showConfig, setShowConfig] = useState(false);
@@ -67,7 +16,7 @@ function App() {
   const [countdown, setCountdown] = useState(null);
   const [startAnimVisible, setStartAnimVisible] = useState(false);
   const [answer, setAnswer] = useState("");
-  const [timeLeft, setTimeLeft] = useState(10);
+  const [timeLeft, setTimeLeft] = useState(TIME_LEFT);
   const [valueNow, setValueNow] = useState(0);
   const [sumNow, setSumNow] = useState(0);
   const [score, setScore] = useState(0);
@@ -86,6 +35,7 @@ function App() {
   const [showScoreBadge, setShowScoreBadge] = useState(false);
   const [scoreBadgeValue, setScoreBadgeValue] = useState(0);
   const [scoreBadgeLeaving, setScoreBadgeLeaving] = useState(false);
+  const [oldTimeRemaining, setOldTimeRemaining] = useState(TIME_LEFT);
   // const [showTimeUp, setShowTimeUp] = useState(false);
 
   useEffect(() => {
@@ -122,16 +72,22 @@ function App() {
       bgRef.current = new Audio("/sounds/bg.mp3");
       bgRef.current.loop = true;
       bgRef.current.volume = 0.14;
-    } catch (e) {}
+    } catch (e) {
+      console.error(e);
+    }
     try {
       sfxCorrectRef.current = new Audio("/sounds/correct.wav");
       sfxClickRef.current = new Audio("/sounds/click.wav");
       sfxGameOverRef.current = new Audio("/sounds/gameover.wav");
-    } catch (e) {}
+    } catch (e) {
+      console.error(e);
+    }
     return () => {
       try {
         bgRef.current && bgRef.current.pause();
-      } catch (e) {}
+      } catch (e) {
+        console.error(e);
+      }
     };
   }, []);
 
@@ -140,7 +96,9 @@ function App() {
     try {
       ref.current.currentTime = 0;
       void ref.current.play();
-    } catch (e) {}
+    } catch (e) {
+      console.error(e);
+    }
   }
 
   function playClick() {
@@ -185,8 +143,11 @@ function App() {
   }, [gameOver]);
 
   function AddScore(timeLeftNow) {
-    const timeRemaining = timeLeftNow;
-    const pointsEarned = SCORE_BASE + timeRemaining * SCORE_MULTIPLYER;
+    const timeSpeed = oldTimeRemaining - timeLeftNow;
+    const timeScore = Math.round(
+      SCALA_TIME_SCORE - (timeSpeed * SCALA_TIME_SCORE) / oldTimeRemaining
+    );
+    const pointsEarned = SCORE_BASE + timeScore * SCORE_MULTIPLYER;
     animateScoreIncrease(pointsEarned);
   }
 
@@ -235,6 +196,7 @@ function App() {
   function UpTimeCorrectSum() {
     // setShowTimeUp(true);
     setTimeLeft((prev) => prev + TIME_GAIN);
+    setOldTimeRemaining(timeLeft + TIME_GAIN);
     // setTimeout(() => setShowTimeUp(false), 1000);
   }
 
@@ -257,6 +219,7 @@ function App() {
   function startGame() {
     const initalValue = Math.floor(Math.random() * 9) + 2;
 
+    setOldTimeRemaining(TIME_LEFT);
     setValueNow(initalValue);
     setSumNow(initalValue + initalValue);
     setCountdown(3);
@@ -271,7 +234,9 @@ function App() {
     if (audioEnabled && bgRef.current) {
       try {
         void bgRef.current.play();
-      } catch (e) {}
+      } catch (e) {
+        console.error(e);
+      }
     }
   }
 
@@ -280,11 +245,15 @@ function App() {
     if (audioEnabled && gameStarted) {
       try {
         void bgRef.current.play();
-      } catch (e) {}
+      } catch (e) {
+        console.error(e);
+      }
     } else {
       try {
         bgRef.current.pause();
-      } catch (e) {}
+      } catch (e) {
+        console.error(e);
+      }
     }
   }, [audioEnabled, gameStarted]);
 
@@ -397,13 +366,11 @@ function App() {
 
   // Game Over screen component
   const GameOverScreen = ({ onPlayAgain, onReset }) => {
-    const [isVisible, setIsVisible] = useState(true);
-
     const calculateLevel = () => {
-      if (correctAnswers < 3) return "Iniciante";
-      if (correctAnswers < 7) return "Aprendiz";
-      if (correctAnswers < 12) return "Intermediário";
-      if (correctAnswers < 18) return "Avançado";
+      if (correctAnswers < 4) return "Iniciante";
+      if (correctAnswers < 8) return "Aprendiz";
+      if (correctAnswers < 16) return "Intermediário";
+      if (correctAnswers < 20) return "Avançado";
       return "Mestre";
     };
 
@@ -458,7 +425,6 @@ function App() {
             </button>
             <button
               onClick={() => {
-                setIsVisible(false);
                 onPlayAgain && onPlayAgain();
               }}
               className="w-full px-8 py-3 rounded-2xl bg-[#c4dbb4] text-[#539fa2] text-lg font-semibold shadow-lg active:scale-95 transition cursor-pointer hover:bg-[#d4e2b6]"
@@ -479,16 +445,16 @@ function App() {
   }, [score]);
 
   return (
-    <div className="h-[100dvh] w-screen flex flex-col justify-between bg-[#539fa2] px-6 py-4">
+    <div className="h-dvh w-screen flex flex-col justify-between bg-[#539fa2] px-6 py-4">
       <div className="flex justify-between items-center">
         {gameStarted ? (
-          <div className="flex justify-center items-center gap-2 relative">
+          <div className="flex justify-center items-center gap-1 relative">
             <p className="text-sm font-medium text-[#d4e2b6]">Pontuação: </p>
 
             <div className="relative flex items-center">
               <span
                 className={`text-lg font-bold text-[#d4e2b6] transition-all duration-300 ${
-                  scoreFlash ? "scale-110 text-green-200" : "scale-100"
+                  scoreFlash ? "scale-105 text-green-200" : "scale-100"
                 }`}
               >
                 {score}
@@ -496,7 +462,7 @@ function App() {
 
               {showScoreBadge && (
                 <div
-                  className={`absolute -top-4 left-2 px-2 py-0.5 rounded-lg bg-yellow-200 text-[#2b3b2f] text-xs font-bold shadow-md transform transition-all duration-300 ${
+                  className={`absolute -top-4 left-6 px-2 py-0.5 rounded-lg bg-yellow-200 text-[#2b3b2f] text-xs font-bold shadow-md transform transition-all duration-300 ${
                     scoreBadgeLeaving ? "badge-exit" : "badge-enter"
                   }`}
                 >
@@ -575,7 +541,7 @@ function App() {
                 type="text"
                 readOnly
                 value={answer}
-                className={`w-66 h-14 text-center text-[#539fa2] rounded-xl bg-[#d4e2b6] text-3xl font-semibold outline-none transition-all duration-300 ${
+                className={`w-74 h-14 text-center text-[#539fa2] rounded-xl bg-[#d4e2b6] text-3xl font-semibold outline-none transition-all duration-300 ${
                   correctFeedback
                     ? "scale-110 bg-green-200 shadow-sm shadow-green-300"
                     : "scale-100"
@@ -584,7 +550,7 @@ function App() {
             </div>
 
             {/* Teclado numérico */}
-            <div className="grid grid-cols-3 gap-3 mt-2">
+            <div className="grid grid-cols-3 gap-4 mt-2">
               {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => (
                 <button
                   key={n}
@@ -593,7 +559,7 @@ function App() {
                     playClick();
                     setAnswer((prev) => prev + n);
                   }}
-                  className={`w-20 h-20 rounded-xl text-xl font-semibold shadow active:scale-95 transition ${
+                  className={`w-22 h-22 rounded-xl text-xl font-semibold shadow active:scale-95 transition ${
                     correctFeedback
                       ? "bg-[#c4dbb4] text-[#539fa2] cursor-not-allowed"
                       : "bg-[#c4dbb4] text-[#539fa2]"
@@ -610,7 +576,7 @@ function App() {
                   playClick();
                   setAnswer("");
                 }}
-                className={`w-20 h-20 rounded-xl text-lg font-semibold shadow active:scale-95 transition ${
+                className={`w-22 h-22 rounded-xl text-lg font-semibold shadow active:scale-95 transition ${
                   correctFeedback
                     ? "bg-[#c4dbb4] text-[#539fa2] cursor-not-allowed"
                     : "bg-[#abccb1] text-[#539fa2]"
@@ -626,7 +592,7 @@ function App() {
                   playClick();
                   setAnswer((prev) => prev + "0");
                 }}
-                className={`w-20 h-20 rounded-xl text-xl font-semibold shadow active:scale-95 transition ${
+                className={`w-22 h-22 rounded-xl text-xl font-semibold shadow active:scale-95 transition ${
                   correctFeedback
                     ? "bg-[#c4dbb4] text-[#539fa2] cursor-not-allowed"
                     : "bg-[#c4dbb4] text-[#539fa2]"
@@ -642,7 +608,7 @@ function App() {
                   playClick();
                   setAnswer((prev) => prev.slice(0, -1));
                 }}
-                className={`w-20 h-20 rounded-xl text-lg font-semibold shadow active:scale-95 transition ${
+                className={`w-22 h-22 rounded-xl text-lg font-semibold shadow active:scale-95 transition ${
                   correctFeedback
                     ? "bg-[#c4dbb4] text-[#539fa2] cursor-not-allowed"
                     : "bg-[#abccb1] text-[#539fa2]"
